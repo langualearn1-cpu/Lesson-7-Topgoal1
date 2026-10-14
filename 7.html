@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Unit 4: Page W 7 • المعلم ماجد السويهري • درس وتمارين تفاعلية مترجمة</title>
+
+  <!-- Tailwind CSS & Canvas Confetti -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Google Fonts: Fredoka & Tajawal -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: radial-gradient(circle at 50% 0%, #fffdf5 0%, #fef7ee 30%, #f4f6ff 70%, #ecfeff 100%);
+      color: #1e293b;
+      min-height: 100vh;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .en-font {
+      font-family: 'Fredoka', cursive, sans-serif;
+    }
+
+    /* Wooden Plaque for Teacher Badge matching original poster */
+    .wood-plaque {
+      background: linear-gradient(180deg, #d97706 0%, #b45309 30%, #92400e 70%, #78350f 100%);
+      border: 3.5px solid #451a03;
+      box-shadow: 0 10px 20px -5px rgba(69, 26, 3, 0.4), inset 0 2px 4px rgba(254, 243, 199, 0.4);
+      position: relative;
+    }
+    .wood-plaque::before, .wood-plaque::after {
+      content: '';
+      position: absolute;
+      top: -14px;
+      width: 4px;
+      height: 16px;
+      background: #78350f;
+      border-radius: 2px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .wood-plaque::before { left: 18px; }
+    .wood-plaque::after { right: 18px; }
+
+    /* Interactive Sentence Card */
+    .sentence-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 22px;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      position: relative;
+    }
+    .sentence-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px -4px rgba(0,0,0,0.08);
+      border-color: #38bdf8;
+    }
+    .sentence-card.is-selected {
+      border-color: #0284c7 !important;
+      background-color: #f0f9ff !important;
+      box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.35) !important;
+      transform: scale(1.015);
+    }
+    .sentence-card.is-matched {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+    }
+
+    /* Picture Matching Card */
+    .pic-match-card {
+      border: 2.5px solid #e2e8f0;
+      border-radius: 20px;
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      position: relative;
+    }
+    .pic-match-card:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 10px 20px -4px rgba(0,0,0,0.1);
+      border-color: #f59e0b;
+    }
+    .pic-match-card.is-selected {
+      border-color: #f59e0b !important;
+      background-color: #fffbeb !important;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.35) !important;
+      transform: scale(1.03);
+    }
+    .pic-match-card.is-matched {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+    }
+
+    /* Word Bank Pill */
+    .word-pill {
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .word-pill:hover {
+      transform: translateY(-2px) scale(1.05);
+    }
+    .word-pill.active-selected {
+      box-shadow: 0 0 0 4px #0284c7, 0 6px 14px -2px rgba(2, 132, 199, 0.4);
+      transform: scale(1.06);
+    }
+    .word-pill.is-used {
+      opacity: 0.35;
+      pointer-events: none;
+      filter: grayscale(80%);
+    }
+
+    /* Ruled Writing Blank */
+    .ruled-blank {
+      border-bottom: 2.5px solid #0284c7;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      min-width: 90px;
+      color: #0369a1;
+      font-weight: 800;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .ruled-blank.blank-filled {
+      border-bottom-color: #10b981;
+      color: #047857;
+      background: #ecfdf5;
+      border-radius: 8px 8px 0 0;
+    }
+
+    /* Dialogue Speech Bubbles */
+    .talk-bubble {
+      position: relative;
+      background: #ffffff;
+      border: 2px solid #0f172a;
+      border-radius: 18px;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .talk-bubble:hover {
+      transform: scale(1.03);
+      border-color: #0284c7;
+      background: #f0f9ff;
+    }
+
+    /* Shake & Success animations */
+    @keyframes shakeCard {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .shake-anim {
+      animation: shakeCard 0.45s ease-in-out;
+    }
+
+    @keyframes popBounce {
+      0% { transform: scale(0.92); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+    .pop-success {
+      animation: popBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @media print {
+      body { background: white !important; }
+      .no-print { display: none !important; }
+      .worksheet-canvas { border: none !important; box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body class="p-2 sm:p-4 md:p-6 lg:p-8 flex justify-center">
+
+  <div class="w-full max-w-4xl flex flex-col items-center">
+
+    <!-- Top Ribbon Toolbar (No Print) -->
+    <header class="no-print w-full bg-white/95 backdrop-blur-md px-4 py-3 rounded-3xl shadow-sm border-2 border-amber-200 mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <span class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 via-rose-400 to-sky-400 flex items-center justify-center text-xl shadow-xs">
+          🌟
+        </span>
+        <div>
+          <h1 class="text-xs sm:text-sm font-black text-slate-800 leading-tight">Unit 4: Workbook Page 7 • تمارين تفاعلية متزامنة</h1>
+          <p class="text-[11px] font-bold text-sky-700">إشراف: الأستاذ ماجد السويهري • نطق كندي فصيح 🇨🇦 مع ترجمة عربية كاملة 🌐</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons & Audio Rate Controls -->
+      <div class="flex items-center flex-wrap gap-2">
+        <!-- Sound Toggle -->
+        <button onclick="toggleAudioMute()" id="btnMuteToggle" class="w-9 h-9 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm flex items-center justify-center transition active:scale-95" title="كتم / تشغيل الصوت">
+          <span id="muteIcon">🔊</span>
+        </button>
+
+        <!-- Speed Toggle -->
+        <div class="inline-flex rounded-2xl bg-slate-100 p-1 border border-slate-200 text-xs">
+          <button onclick="setAudioSpeed(0.85)" id="speedSlow" class="px-2 py-0.5 rounded-xl font-bold text-slate-600 hover:bg-white transition">0.8x</button>
+          <button onclick="setAudioSpeed(1.0)" id="speedNormal" class="px-2.5 py-0.5 rounded-xl bg-sky-600 text-white font-black shadow-xs transition">1.0x</button>
+        </div>
+
+        <!-- Toggle Arabic Translations -->
+        <button id="toggleTransBtn" onclick="toggleTranslations()" class="px-3 py-1.5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-900 text-xs font-black transition flex items-center gap-1 shadow-2xs">
+          <span>🌐</span>
+          <span id="transBtnText">إخفاء الترجمة</span>
+        </button>
+
+        <!-- Score Badge -->
+        <div class="px-3.5 py-1.5 rounded-2xl bg-emerald-600 text-white text-xs sm:text-sm font-black flex items-center gap-1.5 shadow-sm">
+          <span>⭐ النقاط:</span>
+          <span id="scoreTracker" class="en-font text-base font-black">0</span>
+          <span>/ 10</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Interactive Workbook Page Sheet Canvas -->
+    <main class="worksheet-canvas w-full bg-white rounded-[38px] p-4 sm:p-7 md:p-8 shadow-2xl border-4 border-amber-300 relative overflow-hidden">
+
+      <!-- Worksheet Header (Matching image top header) -->
+      <div class="flex items-start justify-between w-full mb-6 pb-4 border-b-2 border-slate-100 relative">
+        
+        <!-- Wooden Plaque Badge: المعلم ماجد السويهري (Upper Left in Image) -->
+        <div class="wood-plaque px-6 py-2.5 rounded-2xl flex items-center gap-2 transform -rotate-1 hover:rotate-0 transition duration-300 select-none">
+          <span class="text-xl">📜</span>
+          <span class="text-amber-100 font-black text-sm sm:text-base tracking-wide drop-shadow-md">
+            المعلم: ماجد السويهري
+          </span>
+        </div>
+
+        <!-- Right Side Header Decorative Confetti Stars -->
+        <div class="flex items-center gap-2 text-xl sm:text-2xl select-none">
+          <span class="animate-pulse text-amber-400">⭐</span>
+          <span class="text-rose-400">🎉</span>
+          <span class="text-sky-400">✨</span>
+        </div>
+      </div>
+
+      <!-- =========================================================================
+           EXERCISE 1: READ AND WRITE. THEN LOOK AND MATCH.
+           ========================================================================= -->
+      <section class="mb-8 p-4 sm:p-6 rounded-3xl bg-sky-50/50 border-2 border-sky-300 shadow-2xs">
+        
+        <!-- Fully Centered Exercise 1 Header -->
+        <div class="flex flex-col items-center justify-center text-center gap-2.5 mb-5 pb-4 border-b border-sky-200/70">
+          <div class="flex items-center justify-center gap-2.5 flex-wrap" dir="ltr">
+            <span class="w-10 h-10 rounded-2xl bg-sky-600 text-white text-lg flex items-center justify-center shrink-0 shadow-sm border border-sky-400">
+              📖
+            </span>
+            <h2 class="en-font font-black text-base sm:text-lg md:text-xl text-slate-900 leading-tight">
+              Read and write. Then look and match.
+            </h2>
+            <span class="text-xs font-black px-2.5 py-0.5 rounded-xl bg-sky-600 text-white en-font shadow-xs">Ex 1</span>
+          </div>
+          <p class="arabic-trans text-xs sm:text-sm font-bold text-sky-800" dir="rtl">
+            اقرأ الجمل، اكتب الصفة المناسبة في الفراغ، ثم طابق الجملة بصورتها.
+          </p>
+          <div class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-2xl bg-sky-100/90 border border-sky-300 text-sky-950 text-xs font-bold shadow-2xs max-w-xl mt-0.5" dir="rtl">
+            <span class="text-base">💡</span>
+            <span>اختر كلمة من البنك لتعبئة الفراغ، ثم اضغط على الجملة وصورتها لتوصيلها</span>
+          </div>
+        </div>
+
+        <!-- Word Bank for Missing Adjectives -->
+        <div class="mb-5 p-3 rounded-2xl bg-white border-2 border-sky-200 shadow-2xs flex items-center justify-center gap-2 sm:gap-3 flex-wrap" dir="ltr" id="adjectivesWordBank">
+          <span class="text-xs font-bold text-slate-400 mr-1">بنك الصفات:</span>
+          <button onclick="pickBankWord('naughty', this)" id="pill-naughty" class="word-pill px-3.5 py-1.5 rounded-xl bg-sky-100 hover:bg-sky-200 border-2 border-sky-300 text-sky-950 font-black text-xs sm:text-sm en-font shadow-xs">
+            naughty (شقي)
+          </button>
+          <button onclick="pickBankWord('terrible', this)" id="pill-terrible" class="word-pill px-3.5 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 border-2 border-amber-300 text-amber-950 font-black text-xs sm:text-sm en-font shadow-xs">
+            terrible (فظيع)
+          </button>
+          <button onclick="pickBankWord('surprised', this)" id="pill-surprised" class="word-pill px-3.5 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 border-2 border-purple-300 text-purple-950 font-black text-xs sm:text-sm en-font shadow-xs">
+            surprised (متفاجئ)
+          </button>
+          <button onclick="pickBankWord('afraid', this)" id="pill-afraid" class="word-pill px-3.5 py-1.5 rounded-xl bg-rose-100 hover:bg-rose-200 border-2 border-rose-300 text-rose-950 font-black text-xs sm:text-sm en-font shadow-xs">
+            afraid (خائف)
+          </button>
+          <button onclick="pickBankWord('exciting', this)" id="pill-exciting" class="word-pill px-3.5 py-1.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 border-2 border-emerald-300 text-emerald-950 font-black text-xs sm:text-sm en-font shadow-xs">
+            exciting (مشوق)
+          </button>
+        </div>
+
+        <!-- Sentences (Left) & Pictures (Right) Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-5" dir="ltr">
+          
+          <!-- LEFT COLUMN: 5 Sentences (6 Columns on Desktop for balanced layout) -->
+          <div class="md:col-span-6 flex flex-col gap-3.5" id="sentencesListContainer">
+            
+            <!-- Sentence 1 -->
+            <div onclick="selectSentenceCard(1, 'naughty', 'd', this)" id="sentCard-1" class="sentence-card p-3.5 sm:p-4 bg-white flex flex-col justify-between shadow-2xs">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-baseline gap-2 flex-wrap">
+                  <span class="w-6 h-6 rounded-full bg-sky-500 text-white font-black text-xs flex items-center justify-center shrink-0 en-font">1</span>
+                  <p class="en-font font-bold text-sm sm:text-base text-slate-800 leading-relaxed">
+                    My little brother is very 
+                    <span class="ruled-blank" id="blank-1" onclick="assignWordToBlank(1, 'naughty', event)">n_________</span>.
+                  </p>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button onclick="listenFullSentence(1, event)" class="p-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs transition" title="استمع للجملة">🔊</button>
+                  <span class="w-8 h-8 rounded-xl bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-xs font-black text-slate-400 en-font" id="slot-1">__</span>
+                </div>
+              </div>
+              <span class="arabic-trans text-[11px] font-bold text-sky-700 mt-1 block" dir="rtl">أخي الصغير شقي ومشاكس جداً.</span>
+            </div>
+
+            <!-- Sentence 2 -->
+            <div onclick="selectSentenceCard(2, 'terrible', 'e', this)" id="sentCard-2" class="sentence-card p-3.5 sm:p-4 bg-white flex flex-col justify-between shadow-2xs">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-baseline gap-2 flex-wrap">
+                  <span class="w-6 h-6 rounded-full bg-amber-500 text-white font-black text-xs flex items-center justify-center shrink-0 en-font">2</span>
+                  <p class="en-font font-bold text-sm sm:text-base text-slate-800 leading-relaxed">
+                    I don't like the taste of cheese. It's 
+                    <span class="ruled-blank" id="blank-2" onclick="assignWordToBlank(2, 'terrible', event)">t_________</span>.
+                  </p>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button onclick="listenFullSentence(2, event)" class="p-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs transition" title="استمع للجملة">🔊</button>
+                  <span class="w-8 h-8 rounded-xl bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-xs font-black text-slate-400 en-font" id="slot-2">__</span>
+                </div>
+              </div>
+              <span class="arabic-trans text-[11px] font-bold text-amber-800 mt-1 block" dir="rtl">لا أحب طعم الجبن. إنه فظيع / سيء جداً.</span>
+            </div>
+
+            <!-- Sentence 3 -->
+            <div onclick="selectSentenceCard(3, 'surprised', 'b', this)" id="sentCard-3" class="sentence-card p-3.5 sm:p-4 bg-white flex flex-col justify-between shadow-2xs">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-baseline gap-2 flex-wrap">
+                  <span class="w-6 h-6 rounded-full bg-purple-500 text-white font-black text-xs flex items-center justify-center shrink-0 en-font">3</span>
+                  <p class="en-font font-bold text-sm sm:text-base text-slate-800 leading-relaxed">
+                    I got ten presents from my friends! I was happy and 
+                    <span class="ruled-blank" id="blank-3" onclick="assignWordToBlank(3, 'surprised', event)">s_________</span>.
+                  </p>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button onclick="listenFullSentence(3, event)" class="p-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs transition" title="استمع للجملة">🔊</button>
+                  <span class="w-8 h-8 rounded-xl bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-xs font-black text-slate-400 en-font" id="slot-3">__</span>
+                </div>
+              </div>
+              <span class="arabic-trans text-[11px] font-bold text-purple-800 mt-1 block" dir="rtl">حصلت على عشر هدايا من أصدقائي! كنت سعيداً ومتفاجئاً.</span>
+            </div>
+
+            <!-- Sentence 4 -->
+            <div onclick="selectSentenceCard(4, 'afraid', 'a', this)" id="sentCard-4" class="sentence-card p-3.5 sm:p-4 bg-white flex flex-col justify-between shadow-2xs">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-baseline gap-2 flex-wrap">
+                  <span class="w-6 h-6 rounded-full bg-rose-500 text-white font-black text-xs flex items-center justify-center shrink-0 en-font">4</span>
+                  <p class="en-font font-bold text-sm sm:text-base text-slate-800 leading-relaxed">
+                    There was a shark near me when I was in the water. I was 
+                    <span class="ruled-blank" id="blank-4" onclick="assignWordToBlank(4, 'afraid', event)">a_________</span>.
+                  </p>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button onclick="listenFullSentence(4, event)" class="p-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs transition" title="استمع للجملة">🔊</button>
+                  <span class="w-8 h-8 rounded-xl bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-xs font-black text-slate-400 en-font" id="slot-4">__</span>
+                </div>
+              </div>
+              <span class="arabic-trans text-[11px] font-bold text-rose-800 mt-1 block" dir="rtl">كانت هناك سمكة قرش بالقرب مني في الماء. لقد كنت خائفاً جداً.</span>
+            </div>
+
+            <!-- Sentence 5 -->
+            <div onclick="selectSentenceCard(5, 'exciting', 'c', this)" id="sentCard-5" class="sentence-card p-3.5 sm:p-4 bg-white flex flex-col justify-between shadow-2xs">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-baseline gap-2 flex-wrap">
+                  <span class="w-6 h-6 rounded-full bg-emerald-500 text-white font-black text-xs flex items-center justify-center shrink-0 en-font">5</span>
+                  <p class="en-font font-bold text-sm sm:text-base text-slate-800 leading-relaxed">
+                    When I go on vacation, I think it's 
+                    <span class="ruled-blank" id="blank-5" onclick="assignWordToBlank(5, 'exciting', event)">e_________</span>.
+                  </p>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button onclick="listenFullSentence(5, event)" class="p-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs transition" title="استمع للجملة">🔊</button>
+                  <span class="w-8 h-8 rounded-xl bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-xs font-black text-slate-400 en-font" id="slot-5">__</span>
+                </div>
+              </div>
+              <span class="arabic-trans text-[11px] font-bold text-emerald-800 mt-1 block" dir="rtl">عندما أذهب في إجازة، أعتقد أنها تجربة مثيرة ومشوقة للغاية.</span>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: 5 Pictures (a to e) (Enlarged and Enhanced Images) -->
+          <div class="md:col-span-6 flex flex-col gap-3.5" id="picsListContainer">
+            
+            <!-- Picture a: Swimmer terrified by Shark fin -->
+            <div onclick="selectPictureCard('a', 'afraid', 4, this)" id="picCard-a" class="pic-match-card p-3 sm:p-4 bg-white flex items-center justify-between shadow-2xs">
+              <span class="w-9 h-9 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 font-black text-xl flex items-center justify-center shrink-0 en-font shadow-2xs">a</span>
+              <div class="flex items-center gap-3.5">
+                <div class="w-32 h-24 sm:w-36 sm:h-26 md:w-40 md:h-28 rounded-2xl bg-gradient-to-b from-sky-100 to-sky-200 border-2 border-sky-300 overflow-hidden flex items-center justify-center relative shadow-xs shrink-0">
+                  <!-- Shark & Terrified Swimmer SVG (Enlarged & Detailed) -->
+                  <svg class="w-full h-full p-1" viewBox="0 0 100 70" fill="none">
+                    <!-- Blue Sea waves -->
+                    <rect y="32" width="100" height="38" fill="#38bdf8"/>
+                    <path d="M0 35C15 28 30 38 45 32C60 26 75 36 90 30C95 28 100 32 100 32V70H0V35Z" fill="#0284c7"/>
+                    <path d="M0 48C20 44 40 52 60 46C80 40 90 48 100 45V70H0V48Z" fill="#0369a1" opacity="0.6"/>
+                    <!-- Shark fin (Large & menacing) -->
+                    <path d="M64 48L78 16C82 28 88 34 94 44H64Z" fill="#1e293b"/>
+                    <!-- Terrified Boy Head & Arms -->
+                    <circle cx="30" cy="24" r="12" fill="#fed7aa"/>
+                    <!-- Hair -->
+                    <path d="M18 20C18 10 42 10 42 20" stroke="#78350f" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Wide terrified eyes -->
+                    <circle cx="26" cy="22" r="3.5" fill="#ffffff"/>
+                    <circle cx="26" cy="22" r="1.8" fill="#0f172a"/>
+                    <circle cx="34" cy="22" r="3.5" fill="#ffffff"/>
+                    <circle cx="34" cy="22" r="1.8" fill="#0f172a"/>
+                    <!-- Screaming mouth -->
+                    <ellipse cx="30" cy="30" rx="3.5" ry="5" fill="#ef4444"/>
+                    <!-- Arms splashing in water -->
+                    <path d="M16 38C14 28 20 28 22 38" stroke="#fed7aa" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M44 38C46 28 40 28 38 38" stroke="#fed7aa" stroke-width="4" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="text-right">
+                  <span class="text-sm sm:text-base font-black text-slate-800 block en-font">afraid</span>
+                  <span class="arabic-trans text-xs text-slate-500 font-bold" dir="rtl">سباح خائف من القرش</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Picture b: Girl happy with mountain of gift boxes -->
+            <div onclick="selectPictureCard('b', 'surprised', 3, this)" id="picCard-b" class="pic-match-card p-3 sm:p-4 bg-white flex items-center justify-between shadow-2xs">
+              <span class="w-9 h-9 rounded-2xl bg-purple-50 border-2 border-purple-200 text-purple-600 font-black text-xl flex items-center justify-center shrink-0 en-font shadow-2xs">b</span>
+              <div class="flex items-center gap-3.5">
+                <div class="w-32 h-24 sm:w-36 sm:h-26 md:w-40 md:h-28 rounded-2xl bg-gradient-to-b from-purple-100 to-pink-100 border-2 border-purple-300 overflow-hidden flex items-center justify-center relative shadow-xs shrink-0">
+                  <!-- Girl with Presents SVG (Enlarged & Detailed) -->
+                  <svg class="w-full h-full p-1" viewBox="0 0 100 70" fill="none">
+                    <!-- Gift Boxes Stack -->
+                    <rect x="52" y="28" width="22" height="28" fill="#facc15" stroke="#ca8a04" stroke-width="1.8" rx="2"/>
+                    <line x1="63" y1="28" x2="63" y2="56" stroke="#ef4444" stroke-width="3"/>
+                    <line x1="52" y1="42" x2="74" y2="42" stroke="#ef4444" stroke-width="3"/>
+                    
+                    <rect x="74" y="20" width="20" height="36" fill="#f43f5e" stroke="#be123c" stroke-width="1.8" rx="2"/>
+                    <line x1="84" y1="20" x2="84" y2="56" stroke="#facc15" stroke-width="3"/>
+                    
+                    <!-- Ribbons on top of boxes -->
+                    <path d="M60 25C63 20 66 25 63 28Z" fill="#ef4444"/>
+                    <path d="M81 17C84 12 87 17 84 20Z" fill="#facc15"/>
+
+                    <!-- Girl surprised -->
+                    <circle cx="28" cy="24" r="11" fill="#fed7aa"/>
+                    <path d="M16 19C16 9 40 9 40 19" stroke="#78350f" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Wide surprised eyes -->
+                    <circle cx="24" cy="22" r="3" fill="#ffffff"/>
+                    <circle cx="24" cy="22" r="1.6" fill="#0f172a"/>
+                    <circle cx="32" cy="22" r="3" fill="#ffffff"/>
+                    <circle cx="32" cy="22" r="1.6" fill="#0f172a"/>
+                    <!-- Open surprised mouth -->
+                    <ellipse cx="28" cy="29" rx="3" ry="4" fill="#ef4444"/>
+                    <!-- Hands on cheeks pose -->
+                    <circle cx="16" cy="27" r="3" fill="#fed7aa"/>
+                    <circle cx="40" cy="27" r="3" fill="#fed7aa"/>
+                    <rect x="20" y="36" width="16" height="22" fill="#2dd4bf" rx="3"/>
+                  </svg>
+                </div>
+                <div class="text-right">
+                  <span class="text-sm sm:text-base font-black text-slate-800 block en-font">surprised</span>
+                  <span class="arabic-trans text-xs text-slate-500 font-bold" dir="rtl">فتاة متفاجئة بالهدايا</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Picture c: Boy rolling suitcase going on vacation -->
+            <div onclick="selectPictureCard('c', 'exciting', 5, this)" id="picCard-c" class="pic-match-card p-3 sm:p-4 bg-white flex items-center justify-between shadow-2xs">
+              <span class="w-9 h-9 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-600 font-black text-xl flex items-center justify-center shrink-0 en-font shadow-2xs">c</span>
+              <div class="flex items-center gap-3.5">
+                <div class="w-32 h-24 sm:w-36 sm:h-26 md:w-40 md:h-28 rounded-2xl bg-gradient-to-b from-emerald-100 to-amber-100 border-2 border-emerald-300 overflow-hidden flex items-center justify-center relative shadow-xs shrink-0">
+                  <!-- Vacation boy with suitcase SVG (Enlarged & Detailed) -->
+                  <svg class="w-full h-full p-1" viewBox="0 0 100 70" fill="none">
+                    <!-- Beach / Ground -->
+                    <rect y="54" width="100" height="16" fill="#fde047"/>
+                    <!-- Palm tree hint or sun -->
+                    <circle cx="16" cy="18" r="9" fill="#f59e0b" opacity="0.8"/>
+                    <!-- Boy walking excitedly -->
+                    <circle cx="42" cy="20" r="8.5" fill="#fed7aa"/>
+                    <path d="M34 18C34 10 52 10 52 18H60V21H34V18Z" fill="#ef4444"/>
+                    <!-- T-shirt & legs -->
+                    <rect x="36" y="29" width="12" height="18" fill="#fb923c" rx="2.5"/>
+                    <line x1="39" y1="47" x2="33" y2="64" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="45" y1="47" x2="51" y2="64" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Purple Rolling Luggage / Suitcase (Enlarged) -->
+                    <rect x="62" y="32" width="18" height="26" rx="3.5" fill="#8b5cf6" stroke="#6d28d9" stroke-width="2"/>
+                    <line x1="62" y1="34" x2="48" y2="39" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>
+                    <circle cx="66" cy="60" r="2.5" fill="#1e293b"/>
+                    <circle cx="76" cy="60" r="2.5" fill="#1e293b"/>
+                  </svg>
+                </div>
+                <div class="text-right">
+                  <span class="text-sm sm:text-base font-black text-slate-800 block en-font">exciting</span>
+                  <span class="arabic-trans text-xs text-slate-500 font-bold" dir="rtl">مسافر متحمس للإجازة</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Picture d: Little naughty boy spilled milk on floor -->
+            <div onclick="selectPictureCard('d', 'naughty', 1, this)" id="picCard-d" class="pic-match-card p-3 sm:p-4 bg-white flex items-center justify-between shadow-2xs">
+              <span class="w-9 h-9 rounded-2xl bg-amber-50 border-2 border-amber-200 text-amber-600 font-black text-xl flex items-center justify-center shrink-0 en-font shadow-2xs">d</span>
+              <div class="flex items-center gap-3.5">
+                <div class="w-32 h-24 sm:w-36 sm:h-26 md:w-40 md:h-28 rounded-2xl bg-gradient-to-b from-amber-100 to-orange-100 border-2 border-amber-300 overflow-hidden flex items-center justify-center relative shadow-xs shrink-0">
+                  <!-- Naughty boy with spilled glass SVG (Enlarged & Detailed) -->
+                  <svg class="w-full h-full p-1" viewBox="0 0 100 70" fill="none">
+                    <!-- Wooden Floor with floorboards -->
+                    <rect y="44" width="100" height="26" fill="#fed7aa"/>
+                    <line x1="0" y1="56" x2="100" y2="56" stroke="#fdba74" stroke-width="1.5"/>
+                    <!-- Boy sitting on floor looking naughty/guilty -->
+                    <circle cx="62" cy="24" r="9" fill="#fed7aa"/>
+                    <path d="M53 22C53 14 71 14 71 22" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                    <circle cx="58" cy="23" r="1.8" fill="#0f172a"/>
+                    <circle cx="66" cy="23" r="1.8" fill="#0f172a"/>
+                    <path d="M58 28C61 31 64 31 66 28" stroke="#78350f" stroke-width="1.8" stroke-linecap="round"/>
+                    <rect x="56" y="33" width="12" height="17" fill="#ea580c" rx="2.5"/>
+                    <ellipse cx="62" cy="53" rx="10" ry="4.5" fill="#3b82f6"/>
+                    <!-- Spilled bowl/glass and large milk puddle -->
+                    <ellipse cx="32" cy="55" rx="15" ry="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                    <path d="M26 46L36 41L39 47L29 52Z" fill="#38bdf8" stroke="#0284c7" stroke-width="1.2"/>
+                  </svg>
+                </div>
+                <div class="text-right">
+                  <span class="text-sm sm:text-base font-black text-slate-800 block en-font">naughty</span>
+                  <span class="arabic-trans text-xs text-slate-500 font-bold" dir="rtl">طفل شقي أحدث فوضى</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Picture e: Girl smelling disgusting cheese -->
+            <div onclick="selectPictureCard('e', 'terrible', 2, this)" id="picCard-e" class="pic-match-card p-3 sm:p-4 bg-white flex items-center justify-between shadow-2xs">
+              <span class="w-9 h-9 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-600 font-black text-xl flex items-center justify-center shrink-0 en-font shadow-2xs">e</span>
+              <div class="flex items-center gap-3.5">
+                <div class="w-32 h-24 sm:w-36 sm:h-26 md:w-40 md:h-28 rounded-2xl bg-gradient-to-b from-rose-100 to-amber-100 border-2 border-rose-300 overflow-hidden flex items-center justify-center relative shadow-xs shrink-0">
+                  <!-- Girl with smelly cheese SVG (Enlarged & Detailed) -->
+                  <svg class="w-full h-full p-1" viewBox="0 0 100 70" fill="none">
+                    <!-- Girl with disgusted face -->
+                    <circle cx="56" cy="24" r="11" fill="#fed7aa"/>
+                    <path d="M44 19C44 9 68 9 68 19" stroke="#ea580c" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Squinting disgusted eyes -->
+                    <line x1="50" y1="22" x2="54" y2="25" stroke="#78350f" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="62" y1="22" x2="58" y2="25" stroke="#78350f" stroke-width="2" stroke-linecap="round"/>
+                    <!-- Disgusted wavy mouth -->
+                    <path d="M50 31C53 28 57 28 61 31" stroke="#78350f" stroke-width="2" stroke-linecap="round"/>
+                    <rect x="49" y="36" width="14" height="22" fill="#a855f7" rx="3"/>
+                    <!-- Large Cheese wedge in hand with stink lines -->
+                    <polygon points="20,45 34,36 37,48 20,48" fill="#facc15" stroke="#ca8a04" stroke-width="1.8"/>
+                    <circle cx="26" cy="42" r="1.5" fill="#ca8a04"/>
+                    <circle cx="30" cy="45" r="1.8" fill="#ca8a04"/>
+                    <!-- Green wavy stink vapors -->
+                    <path d="M26 31C23 27 28 23 25 19" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M33 33C30 29 35 25 32 21" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="text-right">
+                  <span class="text-sm sm:text-base font-black text-slate-800 block en-font">terrible</span>
+                  <span class="arabic-trans text-xs text-slate-500 font-bold" dir="rtl">طعم الجبن سيء جداً</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- =========================================================================
+           EXERCISE 2: TALK WITH A CLASSMATE. ASK AND ANSWER.
+           ========================================================================= -->
+      <section class="mb-6 p-4 sm:p-6 rounded-3xl bg-amber-50/50 border-2 border-amber-300 shadow-2xs">
+        
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-5" dir="ltr">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-full bg-rose-500 text-white font-black text-base flex items-center justify-center shrink-0 shadow-2xs en-font">
+              💬
+            </span>
+            <div>
+              <h2 class="en-font font-black text-lg sm:text-xl text-slate-900 leading-tight">
+                Talk with a classmate. Ask and answer.
+              </h2>
+              <span class="arabic-trans text-xs font-bold text-amber-800" dir="rtl">تحدث مع زميلك في الصف. اسأل واجب وتمرن على المحادثة</span>
+            </div>
+          </div>
+          <button onclick="playFullDialogue()" id="btnPlayTalk" class="px-3.5 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-950 font-black text-xs transition flex items-center gap-1.5 shadow-2xs">
+            <span>▶️</span>
+            <span>استمع للمحادثة الصوتية</span>
+          </button>
+        </div>
+
+        <!-- The Two Speaking Classmates with Dialogue Bubbles -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" dir="ltr">
+          
+          <!-- Student 1 (Asks Question) -->
+          <div class="bg-white p-4 rounded-3xl border-2 border-emerald-300 shadow-2xs flex flex-col items-center text-center">
+            <div class="w-16 h-16 rounded-full bg-emerald-100 border-2 border-emerald-400 flex items-center justify-center text-3xl mb-2">
+              👦🏻
+            </div>
+            <span class="text-xs font-black text-emerald-800 uppercase tracking-wider mb-2">Student A (الزميل الأول)</span>
+            <div onclick="speakBubbleText(this, 'Which food do you think smells terrible?')" class="talk-bubble bg-emerald-50 border-emerald-500 text-xs sm:text-sm font-bold text-slate-800">
+              <span class="en-font">"Which food do you think smells <strong class="text-rose-600">terrible</strong>?" 💬</span>
+              <span class="arabic-trans text-[10px] text-emerald-900 font-bold block mt-1" dir="rtl">أي طعام تعتقد أن رائحته فظيعة؟</span>
+            </div>
+          </div>
+
+          <!-- Student 2 (Gives Answer) -->
+          <div class="bg-white p-4 rounded-3xl border-2 border-rose-300 shadow-2xs flex flex-col items-center text-center">
+            <div class="w-16 h-16 rounded-full bg-rose-100 border-2 border-rose-400 flex items-center justify-center text-3xl mb-2">
+              👦🏽
+            </div>
+            <span class="text-xs font-black text-rose-800 uppercase tracking-wider mb-2">Student B (الزميل الثاني)</span>
+            <div onclick="speakBubbleText(this, 'I think fish smells terrible!')" class="talk-bubble bg-rose-50 border-rose-500 text-xs sm:text-sm font-bold text-slate-800">
+              <span class="en-font">"I think fish smells <strong class="text-rose-600">terrible</strong>!" 💬</span>
+              <span class="arabic-trans text-[10px] text-rose-900 font-bold block mt-1" dir="rtl">أعتقد أن السمك رائحته فظيعة!</span>
+            </div>
+          </div>
+
+        </div>
+
+        <p class="text-xs font-bold text-slate-500 mb-3 text-center" dir="rtl">
+          💡 انقر على أي بطاقة أدناه للاستماع للسؤال وخيارات الإجابات الممكنة للتحدث مع زميلك:
+        </p>
+
+        <!-- 4 Question Prompt Cards matching bottom row in workbook -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" dir="ltr">
+          
+          <!-- Card 1: What are you afraid of? -->
+          <div onclick="simulateConversationPrompt(1, 'What are you afraid of?', 'I am afraid of sharks and heights!')" class="p-3.5 rounded-2xl bg-white border-2 border-rose-300 hover:border-rose-500 cursor-pointer shadow-2xs transition flex items-center justify-between">
+            <div class="text-left">
+              <span class="en-font font-black text-sm text-rose-600 block">What are you afraid of?</span>
+              <span class="arabic-trans text-[11px] font-bold text-slate-400" dir="rtl">مما تخاف؟</span>
+            </div>
+            <span class="text-xl shrink-0">😨</span>
+          </div>
+
+          <!-- Card 2: Who is naughty in your family? -->
+          <div onclick="simulateConversationPrompt(2, 'Who is naughty in your family?', 'My little brother is very naughty!')" class="p-3.5 rounded-2xl bg-white border-2 border-purple-300 hover:border-purple-500 cursor-pointer shadow-2xs transition flex items-center justify-between">
+            <div class="text-left">
+              <span class="en-font font-black text-sm text-purple-600 block">Who is naughty in your family?</span>
+              <span class="arabic-trans text-[11px] font-bold text-slate-400" dir="rtl">من هو المشاغب في عائلتك؟</span>
+            </div>
+            <span class="text-xl shrink-0">😈</span>
+          </div>
+
+          <!-- Card 3: What is exciting at school? -->
+          <div onclick="simulateConversationPrompt(3, 'What is exciting at school?', 'Playing sports and learning English is exciting!')" class="p-3.5 rounded-2xl bg-white border-2 border-emerald-300 hover:border-emerald-500 cursor-pointer shadow-2xs transition flex items-center justify-between">
+            <div class="text-left">
+              <span class="en-font font-black text-sm text-emerald-600 block">What is exciting at school?</span>
+              <span class="arabic-trans text-[11px] font-bold text-slate-400" dir="rtl">ما هو الشيء المثير في المدرسة؟</span>
+            </div>
+            <span class="text-xl shrink-0">🎉</span>
+          </div>
+
+          <!-- Card 4: What makes you surprised? -->
+          <div onclick="simulateConversationPrompt(4, 'What makes you surprised?', 'Getting unexpected birthday presents makes me surprised!')" class="p-3.5 rounded-2xl bg-white border-2 border-sky-300 hover:border-sky-500 cursor-pointer shadow-2xs transition flex items-center justify-between">
+            <div class="text-left">
+              <span class="en-font font-black text-sm text-sky-600 block">What makes you surprised?</span>
+              <span class="arabic-trans text-[11px] font-bold text-slate-400" dir="rtl">ما الذي يجعلك متفاجئاً؟</span>
+            </div>
+            <span class="text-xl shrink-0">😲</span>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- Worksheet Bottom Footer (Matching original image bottom badge: W 7) -->
+      <footer class="pt-4 border-t-2 border-slate-100 flex items-center justify-between relative px-2 sm:px-4" dir="ltr">
+        
+        <!-- Bottom Left: Circular Workbook W Badge with Pink 7 Tag -->
+        <div class="flex items-center gap-1">
+          <div class="w-12 h-12 rounded-full bg-teal-700 text-white font-black text-xl flex items-center justify-center shadow-sm border-2 border-teal-500">
+            W
+          </div>
+          <div class="bg-rose-500 text-white font-black text-xs px-2.5 py-1 rounded-full shadow-2xs">
+            7
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2" dir="rtl">
+          <span class="text-xs font-bold text-slate-500">ورقة عمل الأستاذ ماجد السويهري • كتاب التمارين الوحدة 4</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="resetAllWorkbook()" class="px-4 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-black text-xs transition active:scale-95 flex items-center gap-1.5 shadow-2xs">
+            <span>🔄</span>
+            <span>إعادة تعيين الورقة</span>
+          </button>
+          <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+            🖨️ طباعة
+          </button>
+        </div>
+
+      </footer>
+
+    </main>
+
+  </div>
+
+  <!-- Notification Toast Container -->
+  <div id="toastNotification" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 transform translate-y-28 opacity-0">
+    <div class="bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl border-2 border-sky-400 flex items-center gap-3 backdrop-blur-md">
+      <span id="toastIcon" class="text-2xl">✨</span>
+      <div>
+        <p id="toastTitle" class="text-sm font-black text-white"></p>
+        <p id="toastMsg" class="text-xs text-slate-300 font-medium"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       JAVASCRIPT LOGIC & AUDIO SYNTHESIS
+       ========================================================================= -->
+  <script>
+    /* =========================================================================
+       1. WEB AUDIO SYNTHESIZER (MUSIC & SFX)
+       ========================================================================= */
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playPop() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(450, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      }
+      playSuccess() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.001, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.18, now + idx * 0.08 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.28);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.3);
+        });
+      }
+      playError() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const notes = [280, 210];
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+          gain.gain.setValueAtTime(0.15, now + idx * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.12);
+          osc.stop(now + idx * 0.12 + 0.22);
+        });
+      }
+    }
+    const sfx = new SoundFX();
+
+    /* =========================================================================
+       2. CANADIAN / ENGLISH & ARABIC SPEECH SYNTHESIS ENGINE
+       ========================================================================= */
+    class SpeechEngine {
+      constructor() {
+        this.synth = window.speechSynthesis;
+        this.enVoice = null;
+        this.arVoice = null;
+        this.rate = 1.0;
+        this.currentUtterance = null;
+        this.initVoices();
+        if (this.synth && this.synth.onvoiceschanged !== undefined) {
+          this.synth.onvoiceschanged = () => this.initVoices();
+        }
+      }
+      initVoices() {
+        if (!this.synth) return;
+        const voices = this.synth.getVoices();
+        if (!voices || voices.length === 0) return;
+        this.enVoice = voices.find(v => v.lang === 'en-CA' || v.lang.includes('CA') || (v.lang.startsWith('en') && v.name.toLowerCase().includes('canada')))
+          || voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('zira')))
+          || voices.find(v => v.lang.startsWith('en'))
+          || null;
+
+        this.arVoice = voices.find(v => v.lang && (v.lang.startsWith('ar') || v.lang.includes('AR'))) || null;
+      }
+      speakEnglish(text, onEnd = null) {
+        if (sfx.muted || !this.synth) { if (onEnd) onEnd(); return; }
+        this.synth.cancel();
+
+        const cleanText = text.replace(/[\u{1F300}-\u{1F9FF}]/gu, '').replace(/[💬🔔]/g, '').trim();
+        const utter = new SpeechSynthesisUtterance(cleanText);
+        this.currentUtterance = utter;
+
+        if (this.enVoice) utter.voice = this.enVoice;
+        utter.lang = 'en-CA';
+        utter.rate = this.rate;
+        utter.pitch = 1.0;
+
+        let finished = false;
+        const onFinish = () => {
+          if (!finished) {
+            finished = true;
+            this.currentUtterance = null;
+            if (onEnd) onEnd();
+          }
+        };
+
+        utter.onend = onFinish;
+        utter.onerror = onFinish;
+
+        if (this.synth.paused) this.synth.resume();
+        this.synth.speak(utter);
+      }
+      speakArabic(text, onEnd = null) {
+        if (sfx.muted || !this.synth) { if (onEnd) onEnd(); return; }
+        this.synth.cancel();
+
+        const utter = new SpeechSynthesisUtterance(text);
+        this.currentUtterance = utter;
+
+        if (this.arVoice) utter.voice = this.arVoice;
+        utter.lang = 'ar-SA';
+        utter.rate = 0.95;
+
+        let finished = false;
+        const onFinish = () => {
+          if (!finished) {
+            finished = true;
+            this.currentUtterance = null;
+            if (onEnd) onEnd();
+          }
+        };
+
+        utter.onend = onFinish;
+        utter.onerror = onFinish;
+
+        if (this.synth.paused) this.synth.resume();
+        this.synth.speak(utter);
+      }
+      stop() {
+        if (this.synth) {
+          this.synth.cancel();
+          this.currentUtterance = null;
+        }
+      }
+    }
+    const speaker = new SpeechEngine();
+
+    /* =========================================================================
+       3. DATA DICTIONARY & SENTENCES
+       ========================================================================= */
+    const EX1_DATA = {
+      1: {
+        num: 1,
+        fullText: "My little brother is very naughty.",
+        adjective: "naughty",
+        prefix: "n",
+        targetLetter: "d",
+        arabic: "أخي الصغير شقي ومشاكس جداً."
+      },
+      2: {
+        num: 2,
+        fullText: "I don't like the taste of cheese. It's terrible.",
+        adjective: "terrible",
+        prefix: "t",
+        targetLetter: "e",
+        arabic: "لا أحب طعم الجبن. إنه فظيع / سيء جداً."
+      },
+      3: {
+        num: 3,
+        fullText: "I got ten presents from my friends! I was happy and surprised.",
+        adjective: "surprised",
+        prefix: "s",
+        targetLetter: "b",
+        arabic: "حصلت على عشر هدايا من أصدقائي! كنت سعيداً ومتفاجئاً."
+      },
+      4: {
+        num: 4,
+        fullText: "There was a shark near me when I was in the water. I was afraid.",
+        adjective: "afraid",
+        prefix: "a",
+        targetLetter: "a",
+        arabic: "كانت هناك سمكة قرش بالقرب مني في الماء. لقد كنت خائفاً جداً."
+      },
+      5: {
+        num: 5,
+        fullText: "When I go on vacation, I think it's exciting.",
+        adjective: "exciting",
+        prefix: "e",
+        targetLetter: "c",
+        arabic: "عندما أذهب في إجازة، أعتقد أنها تجربة مثيرة ومشوقة للغاية."
+      }
+    };
+
+    let totalScore = 0;
+    function updateScoreDisplay() {
+      document.getElementById('scoreTracker').textContent = totalScore;
+    }
+
+    /* =========================================================================
+       4. EXERCISE 1 LOGIC: FILLING BLANKS & MATCHING
+       ========================================================================= */
+    let selectedBankWord = null;
+    let selectedBankBtnEl = null;
+
+    const blankStatus = { 1: false, 2: false, 3: false, 4: false, 5: false };
+    const matchStatus = { 1: false, 2: false, 3: false, 4: false, 5: false };
+
+    function pickBankWord(word, btnEl) {
+      sfx.playPop();
+      speaker.speakEnglish(word);
+
+      document.querySelectorAll('#adjectivesWordBank button').forEach(b => b.classList.remove('active-selected'));
+      btnEl.classList.add('active-selected');
+      selectedBankWord = word;
+      selectedBankBtnEl = btnEl;
+
+      showToast(true, `تم اختيار (${word})`, "انقر الآن على الفراغ في الجملة المناسبة");
+    }
+
+    function assignWordToBlank(qNum, expectedWord, evt) {
+      if (evt) evt.stopPropagation();
+
+      if (blankStatus[qNum]) {
+        sfx.playPop();
+        speaker.speakEnglish(expectedWord);
+        return;
+      }
+
+      if (!selectedBankWord) {
+        sfx.playError();
+        showToast(false, "اختر كلمة أولاً!", "انقر على إحدى الصفات في البنك أعلاه أولاً.");
+        return;
+      }
+
+      const blankEl = document.getElementById(`blank-${qNum}`);
+
+      if (selectedBankWord.toLowerCase() === expectedWord.toLowerCase()) {
+        sfx.playSuccess();
+        blankStatus[qNum] = true;
+        totalScore += 1;
+        updateScoreDisplay();
+
+        blankEl.textContent = expectedWord;
+        blankEl.className = "ruled-blank blank-filled pop-success";
+
+        if (selectedBankBtnEl) {
+          selectedBankBtnEl.classList.add('is-used');
+          selectedBankBtnEl.classList.remove('active-selected');
+        }
+
+        confetti({ particleCount: 30, spread: 50 });
+        speaker.speakArabic("الإجابة صحيحة", () => {
+          speaker.speakEnglish(EX1_DATA[qNum].fullText);
+        });
+
+        showToast(true, "أحسنت! كتابة الصفة صحيحة", `${expectedWord}`);
+        selectedBankWord = null;
+        selectedBankBtnEl = null;
+      } else {
+        sfx.playError();
+        blankEl.classList.add('shake-anim', 'text-rose-600');
+        setTimeout(() => blankEl.classList.remove('shake-anim', 'text-rose-600'), 450);
+
+        speaker.speakArabic("إجابة خاطئة");
+        showToast(false, "حاول مرة أخرى!", `الصفة (${selectedBankWord}) لا تناسب هذه الجملة.`);
+      }
+    }
+
+    let selectedSentForMatch = null; // { qNum, expectedLetter, el }
+    let selectedPicForMatch = null;  // { letter, targetQNum, el }
+
+    function selectSentenceCard(qNum, word, expectedLetter, el) {
+      if (matchStatus[qNum]) {
+        sfx.playPop();
+        speaker.speakEnglish(EX1_DATA[qNum].fullText);
+        return;
+      }
+
+      sfx.playPop();
+      speaker.speakEnglish(EX1_DATA[qNum].fullText);
+
+      if (selectedSentForMatch && selectedSentForMatch.qNum === qNum) {
+        el.classList.remove('is-selected');
+        selectedSentForMatch = null;
+        return;
+      }
+
+      document.querySelectorAll('#sentencesListContainer .sentence-card').forEach(c => c.classList.remove('is-selected'));
+      el.classList.add('is-selected');
+      selectedSentForMatch = { qNum, expectedLetter, el };
+
+      if (selectedPicForMatch) evaluateSentencePicPair();
+    }
+
+    function selectPictureCard(letter, word, targetQNum, el) {
+      if (Object.values(matchStatus).includes(letter)) {
+        sfx.playPop();
+        speaker.speakEnglish(word);
+        return;
+      }
+
+      sfx.playPop();
+      speaker.speakEnglish(word);
+
+      if (selectedPicForMatch && selectedPicForMatch.letter === letter) {
+        el.classList.remove('is-selected');
+        selectedPicForMatch = null;
+        return;
+      }
+
+      document.querySelectorAll('#picsListContainer .pic-match-card').forEach(c => c.classList.remove('is-selected'));
+      el.classList.add('is-selected');
+      selectedPicForMatch = { letter, targetQNum, el };
+
+      if (selectedSentForMatch) evaluateSentencePicPair();
+    }
+
+    function evaluateSentencePicPair() {
+      const isCorrect = (selectedSentForMatch.expectedLetter === selectedPicForMatch.letter);
+
+      if (isCorrect) {
+        sfx.playSuccess();
+        totalScore += 1;
+        updateScoreDisplay();
+
+        const qNum = selectedSentForMatch.qNum;
+        matchStatus[qNum] = selectedPicForMatch.letter;
+
+        // Fill slot
+        const slot = document.getElementById(`slot-${qNum}`);
+        slot.textContent = selectedPicForMatch.letter;
+        slot.className = "w-8 h-8 rounded-xl bg-emerald-500 border-2 border-emerald-400 flex items-center justify-center text-xs font-black text-white en-font pop-success";
+
+        // Auto-fill blank if not yet filled
+        if (!blankStatus[qNum]) {
+          blankStatus[qNum] = true;
+          totalScore += 1;
+          updateScoreDisplay();
+          const blankEl = document.getElementById(`blank-${qNum}`);
+          blankEl.textContent = EX1_DATA[qNum].adjective;
+          blankEl.className = "ruled-blank blank-filled pop-success";
+          const pill = document.getElementById(`pill-${EX1_DATA[qNum].adjective}`);
+          if (pill) pill.classList.add('is-used');
+        }
+
+        // Style cards
+        selectedSentForMatch.el.classList.remove('is-selected');
+        selectedSentForMatch.el.classList.add('is-matched', 'pop-success');
+
+        selectedPicForMatch.el.classList.remove('is-selected');
+        selectedPicForMatch.el.classList.add('is-matched', 'pop-success');
+
+        confetti({ particleCount: 35, spread: 55 });
+        speaker.speakArabic("الإجابة صحيحة", () => {
+          speaker.speakEnglish(EX1_DATA[qNum].fullText);
+        });
+
+        showToast(true, "توصيل صحيح ممتاز!", `الجملة ${qNum} ➔ الصورة (${selectedPicForMatch.letter})`);
+      } else {
+        sfx.playError();
+        selectedSentForMatch.el.classList.add('shake-anim');
+        selectedPicForMatch.el.classList.add('shake-anim');
+
+        const sEl = selectedSentForMatch.el;
+        const pEl = selectedPicForMatch.el;
+        setTimeout(() => {
+          sEl.classList.remove('shake-anim', 'is-selected');
+          pEl.classList.remove('shake-anim', 'is-selected');
+        }, 450);
+
+        speaker.speakArabic("إجابة خاطئة");
+        showToast(false, "حاول مرة أخرى!", "هذه الصورة لا تطابق معنى الجملة.");
+      }
+
+      selectedSentForMatch = null;
+      selectedPicForMatch = null;
+    }
+
+    function listenFullSentence(qNum, evt) {
+      if (evt) evt.stopPropagation();
+      sfx.playPop();
+      speaker.speakEnglish(EX1_DATA[qNum].fullText);
+    }
+
+    /* =========================================================================
+       5. EXERCISE 2 LOGIC: TALK WITH A CLASSMATE
+       ========================================================================= */
+    function speakBubbleText(el, text) {
+      sfx.playPop();
+      speaker.speakEnglish(text);
+    }
+
+    function playFullDialogue() {
+      sfx.playPop();
+      speaker.speakEnglish("Which food do you think smells terrible?", () => {
+        setTimeout(() => {
+          speaker.speakEnglish("I think fish smells terrible!");
+          confetti({ particleCount: 30, spread: 50 });
+        }, 600);
+      });
+      showToast(true, "استمع لتبادل الحوار بين الزميلين 🎙️");
+    }
+
+    function simulateConversationPrompt(cardNum, question, sampleAnswer) {
+      sfx.playPop();
+      speaker.speakEnglish(question, () => {
+        setTimeout(() => {
+          speaker.speakEnglish(sampleAnswer);
+        }, 700);
+      });
+      showToast(true, question, `نموذج الإجابة: ${sampleAnswer}`);
+    }
+
+    /* =========================================================================
+       6. GLOBAL CONTROLS, AUDIO SPEED, TRANSLATIONS, AND RESET
+       ========================================================================= */
+    function setAudioSpeed(val) {
+      sfx.playPop();
+      speaker.rate = val;
+      if (val === 0.85) {
+        document.getElementById('speedSlow').className = "px-2.5 py-0.5 rounded-xl bg-sky-600 text-white font-black shadow-xs transition";
+        document.getElementById('speedNormal').className = "px-2 py-0.5 rounded-xl font-bold text-slate-600 hover:bg-white transition";
+      } else {
+        document.getElementById('speedNormal').className = "px-2.5 py-0.5 rounded-xl bg-sky-600 text-white font-black shadow-xs transition";
+        document.getElementById('speedSlow').className = "px-2 py-0.5 rounded-xl font-bold text-slate-600 hover:bg-white transition";
+      }
+      showToast(true, `سرعة النطق: ${val}x`, "تم ضبط سرعة الصوت بنجاح");
+    }
+
+    function toggleAudioMute() {
+      sfx.playPop();
+      sfx.muted = !sfx.muted;
+      document.getElementById('muteIcon').textContent = sfx.muted ? '🔇' : '🔊';
+      if (sfx.muted) {
+        speaker.stop();
+        showToast(false, "تم كتم الصوت 🔇", "انقر مجدداً لتفعيل الصوت");
+      } else {
+        showToast(true, "تم تفعيل الصوت 🔊", "استمتع بالنطق الإنجليزي والاستجابة الصوتية");
+      }
+    }
+
+    let areTransVisible = true;
+    function toggleTranslations() {
+      sfx.playPop();
+      areTransVisible = !areTransVisible;
+      document.querySelectorAll('.arabic-trans').forEach(el => {
+        el.style.display = areTransVisible ? 'inline-block' : 'none';
+      });
+      document.getElementById('transBtnText').textContent = areTransVisible ? "إخفاء الترجمة" : "إظهار الترجمة";
+      showToast(true, areTransVisible ? "تم إظهار الترجمة العربية." : "تم إخفاء الترجمة العربية لتحدي النفس.");
+    }
+
+    function resetAllWorkbook() {
+      sfx.playPop();
+      speaker.stop();
+
+      selectedBankWord = null;
+      selectedBankBtnEl = null;
+      selectedSentForMatch = null;
+      selectedPicForMatch = null;
+
+      for (let i = 1; i <= 5; i++) {
+        blankStatus[i] = false;
+        matchStatus[i] = false;
+        const blank = document.getElementById(`blank-${i}`);
+        if (blank) {
+          blank.textContent = `${EX1_DATA[i].prefix}_________`;
+          blank.className = "ruled-blank";
+        }
+        const slot = document.getElementById(`slot-${i}`);
+        if (slot) {
+          slot.textContent = "__";
+          slot.className = "w-8 h-8 rounded-xl bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-xs font-black text-slate-400 en-font";
+        }
+        const card = document.getElementById(`sentCard-${i}`);
+        if (card) {
+          card.className = "sentence-card p-3 sm:p-4 bg-white flex flex-col justify-between shadow-2xs";
+        }
+      }
+
+      ['a', 'b', 'c', 'd', 'e'].forEach(l => {
+        const pic = document.getElementById(`picCard-${l}`);
+        if (pic) pic.className = "pic-match-card p-3 sm:p-4 bg-white flex items-center justify-between shadow-2xs";
+      });
+
+      document.querySelectorAll('#adjectivesWordBank button').forEach(b => {
+        b.className = b.className.replace('is-used', '').replace('active-selected', '');
+      });
+
+      totalScore = 0;
+      updateScoreDisplay();
+      showToast(true, "تمت إعادة تعيين ورقة العمل بنجاح 🔄");
+    }
+
+    function showToast(isSuccess, title, message) {
+      const toast = document.getElementById('toastNotification');
+      if (!toast) return;
+
+      const titleEl = document.getElementById('toastTitle');
+      const msgEl = document.getElementById('toastMsg');
+      const iconEl = document.getElementById('toastIcon');
+
+      iconEl.textContent = isSuccess ? "✅" : "⚠️";
+      titleEl.textContent = title;
+      msgEl.textContent = message;
+
+      toast.classList.remove('translate-y-28', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-28', 'opacity-0');
+      }, 2600);
+    }
+
+    window.onload = function() {
+      updateScoreDisplay();
+    };
+  </script>
+</body>
+</html>
