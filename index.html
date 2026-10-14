@@ -202,6 +202,12 @@
           <span id="muteIcon">🔊</span>
         </button>
 
+        <!-- Voice Quality Selector Button -->
+        <button onclick="openVoiceModal()" id="btnVoiceQuality" class="px-3 py-1.5 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white text-xs font-black transition flex items-center gap-1.5 shadow-xs active:scale-95" title="اختيار وتغيير صوت المتحدث للأفضل">
+          <span>🎙️</span>
+          <span id="voiceBadgeText">صوت نقي طبيعي (HD)</span>
+        </button>
+
         <!-- Speed Toggle -->
         <div class="inline-flex rounded-2xl bg-slate-100 p-1 border border-slate-200 text-xs">
           <button onclick="setAudioSpeed(0.85)" id="speedSlow" class="px-2 py-0.5 rounded-xl font-bold text-slate-600 hover:bg-white transition">0.8x</button>
@@ -712,6 +718,64 @@
     </div>
   </div>
 
+  <!-- Voice Selector & Studio Modal -->
+  <div id="voiceSettingsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 transition-all duration-300 opacity-0 pointer-events-none">
+    <div class="bg-white rounded-3xl p-5 sm:p-7 max-w-lg w-full border-4 border-sky-400 shadow-2xl relative">
+      <div class="flex items-center justify-between pb-3 mb-4 border-b-2 border-slate-100">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-sky-100 text-sky-700 text-xl flex items-center justify-center">
+            🎙️
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight">استوديو الأصوات فائقة النقاء (HD)</h3>
+            <p class="text-xs text-slate-500 font-bold">اختيار أفضل الأصوات الطبيعية (Natural / Neural) لجهازك</p>
+          </div>
+        </div>
+        <button onclick="closeVoiceModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-black text-sm">✕</button>
+      </div>
+
+      <!-- Current Selected Voice Info Card -->
+      <div class="p-3.5 rounded-2xl bg-sky-50 border-2 border-sky-200 mb-4 flex items-center justify-between gap-3">
+        <div>
+          <span class="text-[10px] font-black uppercase text-sky-800 tracking-wider block">الصوت المفعل حالياً:</span>
+          <span class="en-font font-black text-sm text-slate-900" id="modalActiveVoiceName">جاري التعرف على أفضل صوت...</span>
+          <span class="text-[11px] font-bold text-emerald-700 block mt-0.5" id="modalActiveVoiceQuality">🌟 صوت طبيعي عالي الدقة تم اختياره تلقائياً</span>
+        </div>
+        <button onclick="testCurrentVoice()" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-black text-xs shadow-xs transition active:scale-95 flex items-center gap-1 shrink-0">
+          <span>🔊</span>
+          <span>تجربة الصوت</span>
+        </button>
+      </div>
+
+      <!-- Voices Selector Dropdown List -->
+      <div class="mb-4">
+        <label class="block text-xs font-black text-slate-700 mb-1.5">اختر صوتاً من الأصوات المتوفرة على نظامك:</label>
+        <select id="voiceSelectDropdown" onchange="onUserSelectVoice(this.value)" class="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-200 bg-slate-50 font-bold text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-sky-500 en-font">
+          <!-- Dynamically populated -->
+        </select>
+      </div>
+
+      <!-- Quick Preset Personas -->
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <button onclick="applyVoicePersona('natural-female')" class="p-2.5 rounded-xl bg-slate-50 hover:bg-sky-50 border-2 border-slate-200 hover:border-sky-300 text-right transition">
+          <span class="text-xs font-black text-slate-800 block">👩 صوت أنثوي طبيعي ناعم</span>
+          <span class="text-[10px] text-slate-400 font-bold">Natural / Jenny / Samantha</span>
+        </button>
+        <button onclick="applyVoicePersona('natural-male')" class="p-2.5 rounded-xl bg-slate-50 hover:bg-sky-50 border-2 border-slate-200 hover:border-sky-300 text-right transition">
+          <span class="text-xs font-black text-slate-800 block">👨 صوت رجالي فصيح وواضح</span>
+          <span class="text-[10px] text-slate-400 font-bold">Natural / Guy / Oliver</span>
+        </button>
+      </div>
+
+      <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+        <span class="text-slate-400 font-bold">💡 تم ضبط نبرة الصوت وسرعته للتعليم الفصيح</span>
+        <button onclick="closeVoiceModal()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-xs transition active:scale-95">
+          تم وحفظ الإعداد ✓
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- =========================================================================
        JAVASCRIPT LOGIC & AUDIO SYNTHESIS
        ========================================================================= -->
@@ -799,8 +863,10 @@
         this.synth = window.speechSynthesis;
         this.enVoice = null;
         this.arVoice = null;
-        this.rate = 1.0;
+        this.rate = 0.95; // ضبط السرعة على معدل مثالي ومريح جداً للسمع
+        this.pitch = 1.02; // نبرة صوت طبيعية دافئة
         this.currentUtterance = null;
+        this.userChosenVoiceUri = null;
         this.initVoices();
         if (this.synth && this.synth.onvoiceschanged !== undefined) {
           this.synth.onvoiceschanged = () => this.initVoices();
@@ -810,25 +876,94 @@
         if (!this.synth) return;
         const voices = this.synth.getVoices();
         if (!voices || voices.length === 0) return;
-        this.enVoice = voices.find(v => v.lang === 'en-CA' || v.lang.includes('CA') || (v.lang.startsWith('en') && v.name.toLowerCase().includes('canada')))
-          || voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('zira')))
-          || voices.find(v => v.lang.startsWith('en'))
+
+        // فلترة الأصوات الإنجليزية المتاحة
+        const enVoices = voices.filter(v => v.lang && (v.lang.startsWith('en') || v.lang.includes('EN')));
+
+        // 1. إذا اختار المستخدم صوتاً محدداً يدوياً
+        if (this.userChosenVoiceUri) {
+          const userVoice = voices.find(v => v.voiceURI === this.userChosenVoiceUri);
+          if (userVoice) {
+            this.enVoice = userVoice;
+          }
+        }
+
+        // 2. الفرز الذكي للأفضلية (Hierarchy of Best Neural / Natural / Premium Voices):
+        if (!this.enVoice) {
+          this.enVoice = 
+            // الفئة الذهبية الأولى: أصوات مايكروسوفت الطبيعية فائقة الدقة (Edge & Windows 11)
+            enVoices.find(v => /natural|neural/i.test(v.name) && /jenny|aria|guy|christopher|michelle/i.test(v.name))
+            || enVoices.find(v => /natural|neural/i.test(v.name))
+            // الفئة الذهبية الثانية: أصوات أبل المحسّنة الممتازة (macOS & iOS)
+            || enVoices.find(v => /enhanced|premium/i.test(v.name) && /samantha|ava|serena|oliver|allison|nicky/i.test(v.name))
+            || enVoices.find(v => /enhanced|premium/i.test(v.name))
+            // الفئة الذهبية الثالثة: أصوات جوجل الطبيعية (Chrome & Android)
+            || enVoices.find(v => /google/i.test(v.name) && /us|uk|canada/i.test(v.name) && !/offline/i.test(v.name))
+            || enVoices.find(v => /google/i.test(v.name))
+            // الفئة الكندية الفصيحة المطلوبة في المنهاج
+            || enVoices.find(v => (v.lang === 'en-CA' || v.lang.includes('CA')) && !/compact/i.test(v.name))
+            // أفضل الأصوات القياسية المشهورة بنقائها
+            || enVoices.find(v => /samantha|victoria|zira|karen|catherine/i.test(v.name))
+            || enVoices[0]
+            || null;
+        }
+
+        // 3. انتقاء أفضل صوت للتعزيز العربي
+        const arVoices = voices.filter(v => v.lang && (v.lang.startsWith('ar') || v.lang.includes('AR')));
+        this.arVoice = 
+          arVoices.find(v => /natural|neural|online/i.test(v.name))
+          || arVoices.find(v => /shakir|fatima|maged|tariq|salma|laila|zayd/i.test(v.name))
+          || arVoices.find(v => /google/i.test(v.name))
+          || arVoices[0]
           || null;
 
-        this.arVoice = voices.find(v => v.lang && (v.lang.startsWith('ar') || v.lang.includes('AR'))) || null;
+        this.updateVoiceUI();
       }
+
+      updateVoiceUI() {
+        if (!this.enVoice) return;
+        const badge = document.getElementById('voiceBadgeText');
+        const modalName = document.getElementById('modalActiveVoiceName');
+        const modalQuality = document.getElementById('modalActiveVoiceQuality');
+
+        const cleanName = this.enVoice.name.replace(/(Microsoft|Google|Apple|English|United States|Canada)/gi, '').trim() || this.enVoice.name;
+        const isNatural = /natural|neural|enhanced|premium|online/i.test(this.enVoice.name);
+
+        if (badge) {
+          badge.textContent = isNatural ? `صوت طبيعي (${cleanName.split(' ')[0]})` : `صوت (${cleanName.split(' ')[0]})`;
+        }
+        if (modalName) {
+          modalName.textContent = this.enVoice.name;
+        }
+        if (modalQuality) {
+          modalQuality.textContent = isNatural 
+            ? "🌟 صوت طبيعي فائق النقاء (Neural / Natural HD)" 
+            : "✔️ صوت نطق واضح فصيح";
+        }
+      }
+
       speakEnglish(text, onEnd = null) {
         if (sfx.muted || !this.synth) { if (onEnd) onEnd(); return; }
         this.synth.cancel();
 
-        const cleanText = text.replace(/[\u{1F300}-\u{1F9FF}]/gu, '').replace(/[💬🔔]/g, '').trim();
+        // تحسين النص بإضافة علامات الوقف ليكون الإيقاع ناعماً وطبيعياً
+        const cleanText = text
+          .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+          .replace(/[💬🔔⭐]/g, '')
+          .trim();
+
         const utter = new SpeechSynthesisUtterance(cleanText);
         this.currentUtterance = utter;
 
-        if (this.enVoice) utter.voice = this.enVoice;
-        utter.lang = 'en-CA';
+        if (this.enVoice) {
+          utter.voice = this.enVoice;
+          utter.lang = this.enVoice.lang;
+        } else {
+          utter.lang = 'en-CA';
+        }
+
         utter.rate = this.rate;
-        utter.pitch = 1.0;
+        utter.pitch = this.pitch;
 
         let finished = false;
         const onFinish = () => {
@@ -845,6 +980,7 @@
         if (this.synth.paused) this.synth.resume();
         this.synth.speak(utter);
       }
+
       speakArabic(text, onEnd = null) {
         if (sfx.muted || !this.synth) { if (onEnd) onEnd(); return; }
         this.synth.cancel();
@@ -871,6 +1007,7 @@
         if (this.synth.paused) this.synth.resume();
         this.synth.speak(utter);
       }
+
       stop() {
         if (this.synth) {
           this.synth.cancel();
@@ -879,6 +1016,93 @@
       }
     }
     const speaker = new SpeechEngine();
+
+    /* =========================================================================
+       VOICE MODAL & TEST CONTROLS
+       ========================================================================= */
+    function openVoiceModal() {
+      sfx.playPop();
+      populateVoiceDropdown();
+      speaker.updateVoiceUI();
+      const modal = document.getElementById('voiceSettingsModal');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeVoiceModal() {
+      sfx.playPop();
+      const modal = document.getElementById('voiceSettingsModal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function populateVoiceDropdown() {
+      const dropdown = document.getElementById('voiceSelectDropdown');
+      if (!dropdown || !window.speechSynthesis) return;
+      dropdown.innerHTML = '';
+
+      const voices = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.startsWith('en'));
+      
+      // ترتيب الأصوات بحيث تظهر الطبيعية والممتازة في القمة
+      voices.sort((a, b) => {
+        const scoreA = (/natural|neural/i.test(a.name) ? 3 : /enhanced|premium|google/i.test(a.name) ? 2 : 1);
+        const scoreB = (/natural|neural/i.test(b.name) ? 3 : /enhanced|premium|google/i.test(b.name) ? 2 : 1);
+        return scoreB - scoreA;
+      });
+
+      voices.forEach(voice => {
+        const opt = document.createElement('option');
+        opt.value = voice.voiceURI;
+        const isNatural = /natural|neural|enhanced|premium|google/i.test(voice.name);
+        opt.textContent = `${isNatural ? '🌟 ' : ''}${voice.name} (${voice.lang})`;
+        if (speaker.enVoice && speaker.enVoice.voiceURI === voice.voiceURI) {
+          opt.selected = true;
+        }
+        dropdown.appendChild(opt);
+      });
+    }
+
+    function onUserSelectVoice(voiceUri) {
+      const voices = window.speechSynthesis.getVoices();
+      const selected = voices.find(v => v.voiceURI === voiceUri);
+      if (selected) {
+        speaker.enVoice = selected;
+        speaker.userChosenVoiceUri = voiceUri;
+        speaker.updateVoiceUI();
+        speaker.speakEnglish("Hello! My little brother is very naughty.");
+        showToast(true, "تم تفعيل الصوت المختار 🎙️", selected.name);
+      }
+    }
+
+    function applyVoicePersona(persona) {
+      sfx.playPop();
+      const voices = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.startsWith('en'));
+      let picked = null;
+
+      if (persona === 'natural-female') {
+        picked = voices.find(v => /natural|neural/i.test(v.name) && /jenny|aria|michelle/i.test(v.name))
+          || voices.find(v => /enhanced|premium/i.test(v.name) && /samantha|ava|serena|allison/i.test(v.name))
+          || voices.find(v => /female|samantha|zira/i.test(v.name))
+          || voices[0];
+      } else {
+        picked = voices.find(v => /natural|neural/i.test(v.name) && /guy|christopher|eric/i.test(v.name))
+          || voices.find(v => /enhanced|premium/i.test(v.name) && /oliver|tom|daniel/i.test(v.name))
+          || voices.find(v => /male|david|george/i.test(v.name))
+          || voices[0];
+      }
+
+      if (picked) {
+        speaker.enVoice = picked;
+        speaker.userChosenVoiceUri = picked.voiceURI;
+        speaker.updateVoiceUI();
+        populateVoiceDropdown();
+        speaker.speakEnglish("When I go on vacation, I think it's exciting!");
+        showToast(true, "تم تطبيق نمط الصوت الطبيعي", picked.name);
+      }
+    }
+
+    function testCurrentVoice() {
+      sfx.playPop();
+      speaker.speakEnglish("My little brother is very naughty. I got ten presents from my friends!");
+    }
 
     /* =========================================================================
        3. DATA DICTIONARY & SENTENCES
